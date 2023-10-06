@@ -1,0 +1,39 @@
+//Follow us on other social media
+
+//https://www.youtube.com/c/ZinTechIdeas
+//https://www.facebook.com/zin.techideas.3
+//https://www.instagram.com/zintechideas/
+//https://twitter.com/Zintechideas
+//https://zintechideas.ir/
+const int pinIRd = 2;
+const int pinLED = 13;
+
+int IRvalueD = 0;
+
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(pinIRd,INPUT);
+  pinMode(pinLED,OUTPUT);
+
+}
+
+void loop()
+{
+
+  Serial.print("\t Digital Reading=");
+  Serial.println(IRvalueD);
+
+    if (IRvalueD == LOW) {
+    digitalWrite(LED_BUILTIN, HIGH);
+    Serial.println("Noir pas detecte");
+  }
+  else {
+    digitalWrite(LED_BUILTIN, LOW);
+    Serial.println("Noir  detecte");
+}
+  delay(500);
+  
+  IRvalueD = digitalRead(pinIRd);
+
+}
