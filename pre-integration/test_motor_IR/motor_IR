@@ -1,0 +1,45 @@
+#include <Wire.h>
+#include <Adafruit_MotorShield.h>
+#include "utility/Adafruit_MS_PWMServoDriver.h"
+
+// Créez un objet Adafruit_MotorShield pour contrôler les moteurs DC
+Adafruit_MotorShield AFMS = Adafruit_MotorShield();
+
+// Déclaration des moteurs DC
+Adafruit_DCMotor *motor1 = AFMS.getMotor(1); // Moteur 1 sur la carte
+Adafruit_DCMotor *motor2 = AFMS.getMotor(2); // Moteur 2 sur la carte
+
+// Déclaration de la broche du capteur infrarouge
+const int IR_SENSOR_PIN = 2;
+
+void setup() {
+  // Initialisez la bibliothèque Adafruit Motor Shield
+  AFMS.begin();
+
+  // Configuration de la broche du capteur infrarouge en entrée
+  pinMode(IR_SENSOR_PIN, INPUT);
+}
+
+void loop() {
+  // Lire la valeur du capteur infrarouge
+  int irValue = digitalRead(IR_SENSOR_PIN);
+
+  // Si le capteur détecte la ligne noire (à adapter selon le capteur)
+  if (irValue == HIGH) {
+    // Avancer en activant les moteurs DC dans la direction appropriée
+    motor1->setSpeed(255); // Réglez la vitesse du moteur 1 (0-255, 255 est la vitesse maximale)
+    motor1->run(BACKWARD); // Avancer
+    motor2->setSpeed(255); // Réglez la vitesse du moteur 2
+    motor2->run(FORWARD);
+    Serial.println("Ligne noire detectée");
+
+  } else {
+    // Tourner ou ajuster la direction selon votre logique
+    // Par exemple, vous pourriez arrêter les moteurs ou inverser la direction.
+    motor1->setSpeed(0); // Arrêter le moteur 1
+    motor1->run(RELEASE); // Laisser le moteur 1 en mode relâché
+    motor2->setSpeed(0); // Arrêter le moteur 2
+    motor2->run(RELEASE); // Laisser le moteur 2 en mode relâché
+    Serial.println("Ligne noire pas détectée");
+  }
+}
