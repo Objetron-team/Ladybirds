@@ -19,7 +19,7 @@ InfraredSensor infraredSensorCentral;
 InfraredSensor infraredSensorLeft;
 
 void InitInfrared(){
-    infraredSensorRight.Init(1);  
+    infraredSensorRight.Init(4);  
     infraredSensorCentral.Init(2);  
     infraredSensorLeft.Init(3);  
 }
@@ -38,7 +38,7 @@ void InitMotor(){
 Ultrasound ultraSound;
 
 void InitUltraSound(){
-    ultraSound.Init(4,5);
+    ultraSound.Init(5,6);
 }
 
 
@@ -58,11 +58,14 @@ void loop(){
         if(infraredSensorLeft.GetState()){
             motorRight.SetSpeed(60);
             motorLeft.SetSpeed(40);
+
         }
-
-
     }
 
+  if(ultraSound.GetDistance() <= 10){
+      motorRight.SetSpeed(0);
+      motorLeft.SetSpeed(0);
+  }
 
 }
 
