@@ -13,6 +13,7 @@ Adafruit_DCMotor *motor2 = AFMS.getMotor(2); // Moteur 2 sur la carte
 const int IR_SENSOR_PIN = 2;
 
 void setup() {
+  Serial.begin(9600);
   // Initialisez la bibliothèque Adafruit Motor Shield
   AFMS.begin();
 
