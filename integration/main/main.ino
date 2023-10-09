@@ -10,23 +10,18 @@
 
 void setup(){
     InitInfrared();
-    //InitMotor();
+    InitMotor();
+    InitUltraSound();
 }
 
-
-InfraredSensor infraredSensor1;
-InfraredSensor infraredSensor2;
-InfraredSensor infraredSensor3;
+InfraredSensor infraredSensorRight;
+InfraredSensor infraredSensorCentral;
+InfraredSensor infraredSensorLeft;
 
 void InitInfrared(){
-
-    const int PIN_IR_1;
-    const int PIN_IR_2;
-    const int PIN_IR_3;
-
-    infraredSensor1.Init(PIN_IR_1);
-    infraredSensor1.Init(PIN_IR_1);
-    infraredSensor1.Init(PIN_IR_1);
+    infraredSensorRight.Init(1);  
+    infraredSensorCentral.Init(2);  
+    infraredSensorLeft.Init(3);  
 }
 
 Motor motorRight;
@@ -40,12 +35,33 @@ void InitMotor(){
     motorLeft.Init(AFMS,2,1000);
 }
 
+Ultrasound ultraSound;
 
+void InitUltraSound(){
+    ultraSound.Init(4,5);
+}
 
 
 
 void loop(){
 
+    if(infraredSensorCentral.GetState()){
+
+        motorRight.SetSpeed(50);
+        motorLeft.SetSpeed(50);
+
+        if(infraredSensorRight.GetState()){
+            motorRight.SetSpeed(40);
+            motorLeft.SetSpeed(60);
+        }
+
+        if(infraredSensorLeft.GetState()){
+            motorRight.SetSpeed(60);
+            motorLeft.SetSpeed(40);
+        }
+
+
+    }
 
 
 }
