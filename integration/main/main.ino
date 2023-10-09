@@ -1,4 +1,5 @@
-#include "infrared.h";
+#include "infrared/infrared.h";
+#include "infrared/infrared.cpp";
 
 
 void setup(){

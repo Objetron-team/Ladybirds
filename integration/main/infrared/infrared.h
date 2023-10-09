@@ -2,8 +2,6 @@
 #ifndef InfraredSensor_h
 #define InfraredSensor_h
 
-#include <Arduino.h>
-
 class InfraredSensor {
   private:
     int state;

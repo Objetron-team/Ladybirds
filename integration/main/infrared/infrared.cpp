@@ -1,4 +1,6 @@
 #include "infrared.h";
+#include <Arduino.h>
+
 
 void InfraredSensor::Init(int pin_){
   pinMode(pin_,INPUT);
