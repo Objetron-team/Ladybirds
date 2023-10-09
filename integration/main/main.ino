@@ -1,9 +1,16 @@
+
 #include "infrared/infrared.h";
 #include "infrared/infrared.cpp";
 
+#include "motor/motor.h";
+#include "motor/motor.cpp";
+
+#include "ultrasound/ultrasound.h";
+#include "ultrasound/ultrasound.cpp";
 
 void setup(){
     InitInfrared();
+    //InitMotor();
 }
 
 
@@ -20,6 +27,17 @@ void InitInfrared(){
     infraredSensor1.Init(PIN_IR_1);
     infraredSensor1.Init(PIN_IR_1);
     infraredSensor1.Init(PIN_IR_1);
+}
+
+Motor motorRight;
+Motor motorLeft;
+
+void InitMotor(){
+    Adafruit_MotorShield AFMS = Adafruit_MotorShield();
+    AFMS.begin();
+
+    motorRight.Init(AFMS,1,1000);
+    motorLeft.Init(AFMS,2,1000);
 }
 
 
