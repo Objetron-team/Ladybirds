@@ -20,8 +20,6 @@ class Motor {
         void SetMotorSpeendAndDir(float speed);
 
     public:
-        Motor(/* args */);
-
         void Init(Adafruit_MotorShield adafruit_motorShield,int motor_nbr,int ramp_timer_);
         void SetSpeed(float target);
         
