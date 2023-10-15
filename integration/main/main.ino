@@ -8,6 +8,33 @@
 #include "ultrasound/ultrasound.h";
 #include "ultrasound/ultrasound.cpp";
 
+/*
+    Notes:
+
+    - The infrared sensors are connected to the digital pins 2,3,4
+    - The ultrasound sensor is connected to the digital pins 5,6
+    - The motors are connected to the motor shield, using I2C protocol (pins A4,A5)
+    
+*/
+
+const int INFRARED_RIGHT_PIN = 4;
+const int INFRARED_CENTRAL_PIN = 2;
+const int INFRARED_LEFT_PIN = 3;
+
+const int MOTOR_RIGHT_NBR = 4;
+const int MOTOR_LEFT_NBR = 2;
+
+const int ULTRASOUND_TRIG_PIN = 5;
+const int ULTRASOUND_ECHO_PIN = 6;
+
+/*
+-----------------------------------------------------------------------------------------------------------------------
+
+    Main setup
+
+-----------------------------------------------------------------------------------------------------------------------
+*/
+
 void setup(){
     Serial.begin(9600);
 
@@ -16,40 +43,65 @@ void setup(){
     InitUltraSound();
 }
 
+/*
+----------------------------------------------------------
+    Infrared setup
+----------------------------------------------------------
+*/
+
 InfraredSensor infraredSensorRight;
 InfraredSensor infraredSensorCentral;
 InfraredSensor infraredSensorLeft;
 
 void InitInfrared(){
-    infraredSensorRight.Init(4);  
-    infraredSensorCentral.Init(2);  
-    infraredSensorLeft.Init(3);  
+    infraredSensorRight.Init(INFRARED_RIGHT_PIN);  
+    infraredSensorCentral.Init(INFRARED_CENTRAL_PIN););  
+    infraredSensorLeft.Init(INFRARED_LEFT_PIN);  
 }
+
+/*
+----------------------------------------------------------
+    Motor setup
+----------------------------------------------------------
+*/
 
 Motor motorRight;
 Motor motorLeft;
+
+const int time_to_get_to_speed = 2000;
+const float baseSpeed = 20;
+const float turnFactor = 1;
 
 void InitMotor(){
     Adafruit_MotorShield AFMS = Adafruit_MotorShield();
     AFMS.begin();
 
-    motorRight.Init(AFMS,4,2000);
-    motorLeft.Init(AFMS,2,2000);
+    motorRight.Init(AFMS,MOTOR_RIGHT_NBR,time_to_get_to_speed);
+    motorLeft.Init(AFMS ,MOTOR_LEFT_NBR ,time_to_get_to_speed);
 
     motorRight.SetSpeed(0);
     motorLeft.SetSpeed(0);
-
 }
+
+/*
+----------------------------------------------------------
+    Ultrasound setup
+----------------------------------------------------------
+*/
 
 Ultrasound ultraSound;
 
 void InitUltraSound(){
-    ultraSound.Init(5,6);
+    ultraSound.Init(ULTRASOUND_TRIG_PIN,ULTRASOUND_ECHO_PIN);
 }
 
-float baseSpeed = 20;
-float turnFactor = 1;
+/*
+-----------------------------------------------------------------------------------------------------------------------
 
+    Main loop
+
+-----------------------------------------------------------------------------------------------------------------------
+*/
 
 void loop(){
 
@@ -74,8 +126,8 @@ void loop(){
     }
   /*
   if(ultraSound.GetDistance() <= 10){
-      motorRight.SetSpeed(0);
-      motorLeft.SetSpeed(0);
+      motorRight.UrgentStop();
+      motorLeft.UrgentStop();
   }*/
 
 }

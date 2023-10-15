@@ -27,6 +27,7 @@ class Motor {
     public:
         void Init(Adafruit_MotorShield adafruit_motorShield,int motor_nbr,int ramp_timer_);
         void SetSpeed(float target);
+        void UrgentStop();
 };
 
 #endif
