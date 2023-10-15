@@ -53,12 +53,12 @@
 
 
 
-    The start_timer and end_timer variables are used to calculate the time position of the current speed. (vary between 0 and 1)
+    The start_timer and end_timer variables are used to calculate the time_position of the current speed at a current time. (vary between 0 and 1)
     The time between the start_timer and end_timer is defined by the ramp_timer variable.
 
-    Using the time position we can calculate the speed factor using the GetSpeedFactor function. (vary between 0 and 1)
+    Using the time_position we can calculate the speed_factor using the GetSpeedFactor function. (vary between 0 and 1)
     With the speed factor we can calculate the current speed using the following formula:
-        current_speed = start_speed + ((target_speed - start_speed) * speed_factor)
+        current_speed = start_speed + ((delta_speed) * speed_factor)
 
 
 
