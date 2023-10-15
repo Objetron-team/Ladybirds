@@ -9,6 +9,8 @@
 #include "ultrasound/ultrasound.cpp";
 
 void setup(){
+    Serial.begin(9600);
+
     InitInfrared();
     InitMotor();
     InitUltraSound();
@@ -31,8 +33,12 @@ void InitMotor(){
     Adafruit_MotorShield AFMS = Adafruit_MotorShield();
     AFMS.begin();
 
-    motorRight.Init(AFMS,1,1000);
-    motorLeft.Init(AFMS,2,1000);
+    motorRight.Init(AFMS,4,2000);
+    motorLeft.Init(AFMS,2,2000);
+
+    motorRight.SetSpeed(0);
+    motorLeft.SetSpeed(0);
+
 }
 
 Ultrasound ultraSound;
@@ -41,31 +47,36 @@ void InitUltraSound(){
     ultraSound.Init(5,6);
 }
 
+float baseSpeed = 20;
+float turnFactor = 1;
 
 
 void loop(){
 
     if(infraredSensorCentral.GetState()){
 
-        motorRight.SetSpeed(50);
-        motorLeft.SetSpeed(50);
+        motorRight.SetSpeed(baseSpeed);
+        motorLeft.SetSpeed(-baseSpeed);
 
         if(infraredSensorRight.GetState()){
-            motorRight.SetSpeed(40);
-            motorLeft.SetSpeed(60);
+            motorRight.SetSpeed(baseSpeed*turnFactor);
+            motorLeft.SetSpeed(-(baseSpeed * (1+turnFactor)));
         }
 
         if(infraredSensorLeft.GetState()){
-            motorRight.SetSpeed(60);
-            motorLeft.SetSpeed(40);
+            motorRight.SetSpeed(baseSpeed * (1+turnFactor));
+            motorLeft.SetSpeed(-(baseSpeed * (turnFactor)));
 
         }
+    }else{
+      motorRight.SetSpeed(0);
+      motorLeft.SetSpeed(0);
     }
-
+  /*
   if(ultraSound.GetDistance() <= 10){
       motorRight.SetSpeed(0);
       motorLeft.SetSpeed(0);
-  }
+  }*/
 
 }
 
