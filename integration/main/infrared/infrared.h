@@ -6,6 +6,7 @@ class InfraredSensor {
   private:
     int state;
     int pin;
+    int counter;
 
   public:
     void Init(int pin_);
