@@ -55,7 +55,7 @@ float Motor::GetSpeedFactor(float time_position){
     return speed_factor;
 }
 
-float Motor::UrgentStop(){
+void Motor::UrgentStop(){
     SetMotorSpeendAndDir(0);
 }
 

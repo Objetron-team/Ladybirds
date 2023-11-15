@@ -7,6 +7,8 @@ class InfraredSensor {
     int state;
     int pin;
     int counter;
+    float average;
+    float a;
 
   public:
     void Init(int pin_);

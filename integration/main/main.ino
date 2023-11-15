@@ -55,7 +55,7 @@ InfraredSensor infraredSensorLeft;
 
 void InitInfrared(){
     infraredSensorRight.Init(INFRARED_RIGHT_PIN);  
-    infraredSensorCentral.Init(INFRARED_CENTRAL_PIN););  
+    infraredSensorCentral.Init(INFRARED_CENTRAL_PIN);  
     infraredSensorLeft.Init(INFRARED_LEFT_PIN);  
 }
 
@@ -104,6 +104,19 @@ void InitUltraSound(){
 */
 
 void loop(){
+
+    //Serial.write("Gauche : ");
+    //Serial.print(infraredSensorLeft.GetState());
+    //Serial.print("\n");
+
+    //Serial.write("Central : ");
+    Serial.print(infraredSensorCentral.GetState());
+    Serial.print("\n");
+
+    //Serial.write("Droit : ");
+    //Serial.print(infraredSensorRight.GetState());
+    //Serial.print("\n");
+
 
     if(infraredSensorCentral.GetState()){
 
