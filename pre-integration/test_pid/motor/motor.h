@@ -29,6 +29,7 @@ class Motor {
         void SetSpeed(float target);
         void UrgentStop();
         int GetDirection();
+        float GetSpeed();
 };
 
 #endif

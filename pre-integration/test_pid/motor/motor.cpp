@@ -18,8 +18,12 @@ void Motor::Init(Adafruit_MotorShield adafruit_motorShield,int motor_nbr,int ram
 
 }
 
-void Motor::SetSpeed(float target){
+float Motor::GetSpeed(){
+    return current_speed;
+}
 
+void Motor::SetSpeed(float target){
+    /*
     if(target != target_speed){
         start_speed = current_speed;
         target_speed = target;
@@ -40,7 +44,9 @@ void Motor::SetSpeed(float target){
             current_speed = start_speed + (target_speed - start_speed) * speed_factor;
         }
     }   
+    */
 
+    current_speed = target;
     SetMotorSpeendAndDir(current_speed);
 }
 
