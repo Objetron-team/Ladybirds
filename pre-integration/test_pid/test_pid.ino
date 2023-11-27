@@ -7,28 +7,44 @@
 #include "pid/pid.h";
 #include "pid/pid.cpp";
 
+#include "driveController/driveController.h";
+#include "driveController/driveController.cpp";
+
+#include "positionController/positionController.h";
+#include "positionController/positionController.cpp";
+
+#include "ultrasound/ultrasound.h";
+#include "ultrasound/ultrasound.cpp";
+
 Motor motorRight;
 Motor motorLeft;
 
-const int MOTOR_RIGHT_NBR = 2;
-const int MOTOR_LEFT_NBR = 1;
+const int MOTOR_RIGHT_NBR = 1;
+const int MOTOR_LEFT_NBR = 2;
 
-const int time_to_get_to_speed = 1;
-const float turnFactor = 1;
+const int acceleration = 30;  // % per sec
+
+float max_speed = 100.0f;
+
+float threshold_speed_left = 3.0f;
+float threshold_speed_right = 3.0f;
+
+float min_speed_left = 0;//11.0f;
+float min_speed_right = 0;//11.0f;
 
 void InitMotor(){
     Adafruit_MotorShield AFMS = Adafruit_MotorShield();
     AFMS.begin();
 
-    motorRight.Init(AFMS,MOTOR_RIGHT_NBR,time_to_get_to_speed);
-    motorLeft.Init(AFMS ,MOTOR_LEFT_NBR ,time_to_get_to_speed);
+    motorRight.Init(AFMS,MOTOR_RIGHT_NBR,acceleration,threshold_speed_right,min_speed_right, max_speed);
+    motorLeft.Init(AFMS ,MOTOR_LEFT_NBR ,acceleration,threshold_speed_left,min_speed_left, max_speed);
 
     motorRight.SetSpeed(0);
     motorLeft.SetSpeed(0);
 }
 
-const int WHEEL_ENCODER_PIN_RIGHT = 2;
-const int WHEEL_ENCODER_PIN_LEFT = 3;
+const int WHEEL_ENCODER_PIN_RIGHT = 3;
+const int WHEEL_ENCODER_PIN_LEFT = 2;
 
 Encoder encoderRight;
 Encoder encoderLeft;
@@ -43,216 +59,172 @@ void InitEncoder(){
 }
 
 void CouterRight(){
-    //Serial.println("Right Counter ; ");
-    //Serial.println(encoderRight.GetCounter());
-
     encoderRight.DebouncedCount();
 }
 
 void CouterLeft(){
-    //Serial.println("Left Counter ; ");
-    //Serial.println(encoderLeft.GetCounter());
-
     encoderLeft.DebouncedCount();
 }
 
-int target_counter_right = 0;
-int target_counter_left = 0;
+const int ULTRASOUND_TRIGGER_PIN = 9;
+const int ULTRASOUND_ECHO_PIN = 8;
 
-        //PID parameter for the right motor
-float Kp_r = 0.0f;
-float Ki_r = 0.0f;
-float Kd_r = 0.0f;
+Ultrasound ultrasound;
 
-//PID parameter for the left motor
-float Kp_l = 0.0f;
-float Ki_l = 0.0f;
-float Kd_l = 0.0f;
-
-PID left_PID;
-PID Right_PID;
-
-void InitPID(){
-    left_PID.Init(Kp_l,Ki_l,Kd_l);
-    Right_PID.Init(Kp_r,Ki_r,Kd_r);
+void InitUltrasound(){
+    ultrasound.Init(ULTRASOUND_ECHO_PIN,ULTRASOUND_TRIGGER_PIN);
 }
 
-
-int position_right = 0;
-int position_left = 0;
+DriveController driveController;
+PositionController positionController;
 
 void setup() {
 
-    Serial.begin(9600);
-
+    Serial.begin(38400);
 
     InitMotor();
     InitEncoder();
-    InitPID();
+    InitUltrasound();
+
+    driveController.Init(&motorRight,&motorLeft,&encoderRight,&encoderLeft);
+    positionController.Init(&driveController,&ultrasound);
+
+
+    //define the path to follow
+    positionController.AddPoint({100,100});
+    positionController.AddPoint({200,100});
+    positionController.AddPoint({100,200});
+
+    delay(1000);
+
+    DebugPath();
 }
 
+float target_distance = 0;
+float target_angle = 0;
 
-void DebugRight(int error_right,float PID_right){
-    Serial.print("Right :");
+void SerialCommande(){
 
-    Serial.print("M dir : ");
-    Serial.print(motorRight.GetDirection());
-    Serial.print(" - ");
-    
-    Serial.print("Speed : ");
-    Serial.print(motorRight.GetSpeed());
-    Serial.print(" - ");
-
-    Serial.print("Counter : ");
-    Serial.print(encoderRight.GetCounter());
-    Serial.print(" - ");
-
-    Serial.print("Error : ");
-    Serial.print(error_right);
-    Serial.print(" - ");
-
-    Serial.print("PID : ");
-    Serial.println(PID_right);
-}
-
-void DebugLeft(int error_left,float PID_left){
-    Serial.print("Left :");
-
-    Serial.print("M dir : ");
-    Serial.print(motorLeft.GetDirection());
-    Serial.print(" - ");
-
-    Serial.print("Speed : ");
-    Serial.print(encoderLeft.GetSpeed());
-    Serial.print(" - ");
-
-    Serial.print("Counter : ");
-    Serial.print(encoderLeft.GetCounter());
-    Serial.print(" - ");
-
-    Serial.print("Error : ");
-    Serial.print(error_left);
-    Serial.print(" - ");
-
-    Serial.print("PID : ");
-    Serial.println(PID_left);
-}
-
-
-
-
-void ControlFromSerial(){
     if(Serial.available() > 0){
-        String input = Serial.readString();
 
-        // set the target counter base on the input zqsd
-        // {side}{value}
-        // z -> forward, s -> backward, q -> left, d -> right
-        // value: int value
+        String commande = Serial.readStringUntil('\n');
 
-        // example: z100 -> set the target counter of the right and left motor to 100
 
-        if(input[0] == 'z' || input[0] == 's' || input[0] == 'q' || input[0] == 'd'){
-            int value = input.substring(1).toInt();
-            if(input[0] == 'z'){
-                target_counter_right = value;
-                target_counter_left = value;
-            }
-            if(input[0] == 's'){
-                target_counter_right = -value;
-                target_counter_left = -value;
-            }
-            if(input[0] == 'q'){
-                target_counter_right = value;
-                target_counter_left = -value;
-            }
-            if(input[0] == 'd'){
-                target_counter_right = -value;
-                target_counter_left = value;
-            }
+        /*
+            format commande :
+            {commande} {param1} {param2} {param3} {param4}
+        
+            commande :
+            - m : move
+                param1 : distance
+            - r : rotate
+                param1 : angle
+        */
+    
+        char commande_type = commande.charAt(0);
+
+        switch(commande_type){
+            case 'z':
+                positionController.Start();
+                break;
+            case 's':
+                positionController.Stop();
+                break;
+            case 'n':
+                positionController.Next();
+                break;
+            default:
+                break;
         }
-
-        // update PID parameter base on the input
-        // {side}{parameter}{value}
-        // side: r -> right motor, l -> left motor, b -> both motor
-        // parameter: p -> Kp, i -> Ki, d -> Kd
-        // value: float value
-
-        // example: rpi0.5 -> set Kp of the right motor to 0.5
-
-        if(input[0] == 'r' || input[0] == 'l' || input[0] == 'b'){
-            if(input[1] == 'p' || input[1] == 'i' || input[1] == 'd'){
-                float value = input.substring(2).toFloat();
-                if(input[0] == 'r'){
-                    if(input[1] == 'p'){
-                        Kp_r = value;
-                        Serial.println("Update Kp_r");
-                        Serial.println(Kp_r);
-                    }
-                    if(input[1] == 'i'){
-                        Ki_r = value;
-                    }
-                    if(input[1] == 'd'){
-                        Kd_r = value;
-                    }
-                }
-                if(input[0] == 'l'){
-                    if(input[1] == 'p'){
-                        Kp_l = value;
-                    }
-                    if(input[1] == 'i'){
-                        Ki_l = value;
-                    }
-                    if(input[1] == 'd'){
-                        Kd_l = value;
-                    }
-                }
-                if(input[0] == 'b'){
-                    if(input[1] == 'p'){
-                        Kp_r = value;
-                        Kp_l = value;
-                    }
-                    if(input[1] == 'i'){
-                        Ki_r = value;
-                        Ki_l = value;
-                    }
-                    if(input[1] == 'd'){
-                        Kd_r = value;
-                        Kd_l = value;
-                    }
-                }
-            }
-        }
-
     }
 
-    left_PID.UpdateKpKiKd(Kp_l,Ki_l,Kd_l);
-    Right_PID.UpdateKpKiKd(Kp_r,Ki_r,Kd_r);
 }
 
-void loop(){
-    
-    //get the distance from right and left encoder
-    float distance_in_tick = ( encoderRight.GetCounter() - encoderLeft.GetCounter() ) / 2;
+void Debug(){
 
-    float angle_in_tick = ( encoderRight.GetCounter() - encoderLeft.GetCounter() );
+    Serial.print("Tasks:");
+    Serial.print(positionController.GetTaskCount());
+    Serial.print(",");
 
-    ControlFromSerial();
+    Serial.print("Current_task_id:");
+    Serial.print(positionController.current_task.id);
+    Serial.print(",");
+    /*
+    Serial.print("State:");
+    Serial.print(positionController.start);
+    Serial.print(",");
+    */
+    Serial.print("Task_completed:");
+    Serial.print(positionController.IsTaskCompleted());
+    Serial.print(",");
 
+    Serial.print("target_distance:");
+    Serial.print(driveController.GetTargetDistance());
+    Serial.print(",");
+ 
+    Serial.print("target_angle:");
+    Serial.print(driveController.GetTargetAngle());
+    Serial.print(",");
 
+    Serial.print("x:");
+    Serial.print(driveController.GetX());
+    Serial.print(",");
 
-    float PID_right = Right_PID.Compute(target_counter_right, encoderRight.GetCounter());
-    float PID_left = left_PID.Compute(target_counter_left, encoderLeft.GetCounter());
+    Serial.print("y:");
+    Serial.print(driveController.GetY());
+    Serial.print(",");
 
-    
-    //DebugLeft(left_PID.GetError(), PID_left);
-    DebugRight(Right_PID.GetError(), PID_right);
+    Serial.print("theta:");
+    Serial.println(driveController.GetTheta());
+    //Serial.print(",");
 
+}
 
+void DebugPath(){
+    int count = 1;
+    Path *temp_task = positionController.current_task.next_task;
+    while(temp_task != NULL){
+        count++;
 
+        Serial.print("Task:");
+        Serial.print(temp_task->id);
+        Serial.print(",");
+        Serial.print("x:");
+        Serial.print(temp_task->point.x);
+        Serial.print(",");
+        Serial.print("y:");
+        Serial.print(temp_task->point.y);
+        Serial.print(",");
+        Serial.print("angle:");
+        Serial.println(temp_task->angle);
 
-    //set the speed of the motor
-    motorRight.SetSpeed(PID_right);
-    motorLeft.SetSpeed(PID_left);
+        temp_task = temp_task->next_task;
+    }
+    return count;
+}
+/*
+    Task:1 ,x:0.00      ,y:0.00     ,angle:45.00
+    Task:2 ,x:100.00    ,y:100.00   ,angle:45.00
+    Task:3 ,x:0.00      ,y:0.00     ,angle:0.00
+    Task:4 ,x:200.00    ,y:100.00   ,angle:0.00
+    Task:5 ,x:0.00      ,y:0.00     ,angle:135.00
+    Task:6 ,x:100.00    ,y:200.00   ,angle:135.00
+
+*/
+
+void DebugUltrasound(){
+    Serial.print("Distance:");
+    Serial.println(ultrasound.GetDistance());
+}
+
+void loop() {
+
+    //Debug();
+
+    //SerialCommande();
+
+    //positionController.Update();
+
+    DebugUltrasound();
 
 }

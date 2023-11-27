@@ -6,7 +6,7 @@
 
 class Ultrasound {
   private:
-    int distance;
+    long distance;
     int pinEcho;
     int pinTrigger;
     unsigned long MEASURE_TIMEOUT = 25000UL;
@@ -15,7 +15,7 @@ class Ultrasound {
     int last_mesure_time;
 
   public:
-    void Init(int pinInput_, int pinOutput_);
+    void Init(int pinEcho_, int pinTrigger_);
     float GetDistance();
     void DebugUltrasound(String distance_mm);
 };

@@ -20,13 +20,13 @@ class PID {
 
         float output;
 
-        float min_output = -100;
-        float max_output = 100;
+        float min_output;
+        float max_output;
 
         float ClampOutput(float output);
 
     public:
-        void Init(float Kp_,float Ki_,float Kd_);
+        void Init(float Kp_,float Ki_,float Kd_, float min_output_, float max_output_);
 
         float Compute(float target_,float current_);
 

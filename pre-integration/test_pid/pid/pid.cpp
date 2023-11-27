@@ -1,10 +1,13 @@
 #include "pid.h";
 #include <Arduino.h>;
 
-void PID::Init(float Kp_,float Ki_,float Kd_){
+void PID::Init(float Kp_,float Ki_,float Kd_, float min_output_, float max_output_){
     Kp = Kp_;
     Ki = Ki_;
     Kd = Kd_;
+
+    min_output = min_output_;
+    max_output = max_output_;
 
     target = 0;
     current = 0;

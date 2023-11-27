@@ -1,28 +1,28 @@
 #include "ultrasound.h";
 #include <Arduino.h>
 
-void Ultrasound::Init(int pinInput_, int pinOutput_){
-    pinMode(pinInput_,INPUT);
-    pinEcho = pinInput_;
-    pinMode(pinOutput_,OUTPUT);
-    pinTrigger = pinOutput_;
+void Ultrasound::Init(int pinEcho_, int pinTrigger_){
+    pinEcho = pinEcho_;
+    pinMode(pinEcho,INPUT);
+
+    pinTrigger = pinTrigger_;
+    pinMode(pinTrigger,OUTPUT);
+    digitalWrite(pinTrigger, LOW);
 }
 
 float Ultrasound::GetDistance(){
+
     /* 1. Starts a distance measurement by sending a 10µs HIGH pulse to the TRIGGER pin */
     digitalWrite(pinTrigger, HIGH);
-    if(millis() - last_mesure_time >= 10){
-      
-      last_mesure_time = millis();
-    }
+    delayMicroseconds(10);
     digitalWrite(pinTrigger, LOW);
     
-    /* 2. Measures the time between sending the ultrasonic pulse and its echo (if it exists) */
+    /* 2. Mesure le temps entre l'envoi de l'impulsion ultrasonique et son écho (si il existe) */
     long measure = pulseIn(pinEcho, HIGH, MEASURE_TIMEOUT);
     
-    /* 3. Calculating the distance from the measured time */
+    /* 3. Calcul la distance à partir du temps mesuré */
     float distance_mm = measure / 2.0 * SOUND_SPEED;
-    
+        
     return distance_mm;
 }
 
