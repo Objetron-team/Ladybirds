@@ -43,7 +43,7 @@ class PositionController
         Path current_task;
 
         void Init(DriveController *drive_controller, Ultrasound *ultrasound);
-        void Update();
+        void Update(float obstacle_distance);
 
         void AddPath(Point point, float angle);
         void AddPoint(Point point);

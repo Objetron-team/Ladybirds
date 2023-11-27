@@ -66,14 +66,29 @@ void CouterLeft(){
     encoderLeft.DebouncedCount();
 }
 
-const int ULTRASOUND_TRIGGER_PIN = 9;
-const int ULTRASOUND_ECHO_PIN = 8;
+const byte ULTRASOUND_TRIGGER_PIN = 9;
+const byte ULTRASOUND_ECHO_PIN = 8;
+
+const byte TRIGGER_PIN = 9; // Broche TRIGGER
+const byte ECHO_PIN = 8;   // Broche ECHO
+const unsigned long MEASURE_TIMEOUT = 25000UL; // 25ms = ~8m à 340m/s
+
+/* Vitesse du son dans l'air en mm/us */
+const float SOUND_SPEED = 340.0 / 1000;
+
 
 Ultrasound ultrasound;
 
 void InitUltrasound(){
+
+    //pinMode(ULTRASOUND_ECHO_PIN,INPUT);
+
+
+    //pinMode(ULTRASOUND_TRIGGER_PIN,OUTPUT);
+    //digitalWrite(ULTRASOUND_TRIGGER_PIN, LOW);
     ultrasound.Init(ULTRASOUND_ECHO_PIN,ULTRASOUND_TRIGGER_PIN);
 }
+
 
 DriveController driveController;
 PositionController positionController;
@@ -82,9 +97,15 @@ void setup() {
 
     Serial.begin(38400);
 
+    pinMode(TRIGGER_PIN, OUTPUT);
+    digitalWrite(TRIGGER_PIN, LOW); // La broche TRIGGER doit être à LOW au repos
+    pinMode(ECHO_PIN, INPUT);
+
+    InitUltrasound();
+
     InitMotor();
     InitEncoder();
-    InitUltrasound();
+    
 
     driveController.Init(&motorRight,&motorLeft,&encoderRight,&encoderLeft);
     positionController.Init(&driveController,&ultrasound);
@@ -99,9 +120,6 @@ void setup() {
 
     DebugPath();
 }
-
-float target_distance = 0;
-float target_angle = 0;
 
 void SerialCommande(){
 
@@ -140,7 +158,7 @@ void SerialCommande(){
 
 }
 
-void Debug(){
+void Debug(float distance_mm){
 
     Serial.print("Tasks:");
     Serial.print(positionController.GetTaskCount());
@@ -164,6 +182,10 @@ void Debug(){
  
     Serial.print("target_angle:");
     Serial.print(driveController.GetTargetAngle());
+    Serial.print(",");
+
+    Serial.print("collision_distance:");
+    Serial.print(distance_mm);
     Serial.print(",");
 
     Serial.print("x:");
@@ -219,12 +241,21 @@ void DebugUltrasound(){
 
 void loop() {
 
-    //Debug();
 
-    //SerialCommande();
+    digitalWrite(TRIGGER_PIN, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(TRIGGER_PIN, LOW);
+    
+    long measure = pulseIn(ECHO_PIN, HIGH, MEASURE_TIMEOUT);
+    
+    float distance_mm = measure / 2.0 * SOUND_SPEED;
+    
+    Debug(distance_mm / 10);
 
-    //positionController.Update();
+    SerialCommande();
 
-    DebugUltrasound();
+    positionController.Update(distance_mm / 10);
+
+    //DebugUltrasound();
 
 }

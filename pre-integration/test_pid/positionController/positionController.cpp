@@ -36,13 +36,13 @@ float PositionController::Disance(Point point1, Point point2){
     return sqrt(pow(point1.x - point2.x,2) + pow(point1.y - point2.y,2));
 }
 
-void PositionController::Update(){
+void PositionController::Update(float obstacle_distance){
 
     if(!start){
         return;
     }
 
-    this->drive_controller->Update();
+    this->drive_controller->Update(obstacle_distance);
 
     this->current_position.x = this->drive_controller->GetX();
     this->current_position.y = this->drive_controller->GetY();

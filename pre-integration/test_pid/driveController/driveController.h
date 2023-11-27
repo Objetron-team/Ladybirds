@@ -27,6 +27,8 @@ private:
 
     bool is_in_distance_mode;
 
+    const float collision_distance = 10; //in cm
+
     float target_speed_left;    //in degree per seconde
     float target_speed_right;   //in degree per seconde
 
@@ -48,7 +50,7 @@ public:
     void SetTargetDistance(float target_distance);
     void SetTargetAngle(float target_angle);
 
-    void Update();
+    void Update(float obstacle_distance);
 
     float GetSpeed();
 

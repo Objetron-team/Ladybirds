@@ -59,7 +59,13 @@ void DriveController::SetTargetAngle(float target_angle){
     this->target_angle = target_angle;
 }
 
-void DriveController::Update(){
+void DriveController::Update(float obstacle_distance){
+
+    if(obstacle_distance < collision_distance){
+        UrgentStop();
+        return;
+    }
+
     long current_time = millis();
     float dt = (current_time - last_update_time) / 1000.0;
     last_update_time = current_time;
@@ -89,6 +95,10 @@ void DriveController::Update(){
     x += cos(theta * PI / 180.0) * (speed_left + speed_right) / 2.0 * dt;
     y += sin(theta * PI / 180.0) * (speed_left + speed_right) / 2.0 * dt;
     
+    if(obstacle_distance < collision_distance){
+        UrgentStop();
+        return;
+    }
 }
 
 float DriveController::GetSpeed(){

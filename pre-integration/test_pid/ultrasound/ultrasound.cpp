@@ -1,13 +1,15 @@
 #include "ultrasound.h";
 #include <Arduino.h>
 
-void Ultrasound::Init(int pinEcho_, int pinTrigger_){
+void Ultrasound::Init(byte pinEcho_, byte pinTrigger_){
     pinEcho = pinEcho_;
-    pinMode(pinEcho,INPUT);
-
     pinTrigger = pinTrigger_;
-    pinMode(pinTrigger,OUTPUT);
-    digitalWrite(pinTrigger, LOW);
+
+
+    pinMode(pinEcho_,INPUT);
+    pinMode(pinTrigger_,OUTPUT);
+
+    digitalWrite(pinTrigger_, LOW);    
 }
 
 float Ultrasound::GetDistance(){
