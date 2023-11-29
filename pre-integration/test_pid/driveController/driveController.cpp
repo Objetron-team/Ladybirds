@@ -13,14 +13,22 @@ void DriveController::Init(Motor *motor_left, Motor *motor_right, Encoder *encod
 
     is_in_distance_mode = true;
 
-    pid_left.Init(1,0.00,0.00 , -100, 100);
-    pid_right.Init(1,0.00,0.00, -100, 100);
+    float p_left = 1;
+    float i_left = 0;
+    float d_left = 0;
 
-    float p_distance = 10;
+    float p_right = 1;
+    float i_right = 0;
+    float d_right = 0;
+
+    pid_left.Init(p_left,i_left,d_left , -100, 100);
+    pid_right.Init(p_right,i_right,d_right, -100, 100);
+
+    float p_distance = 7;
     float i_distance = 0;
     float d_distance = 0;
 
-    float p_angle = 10;
+    float p_angle = 6;
     float i_angle = 0;
     float d_angle = 0;
 
@@ -73,8 +81,8 @@ void DriveController::Update(float obstacle_distance){
     float speed_left = encoder_left->GetRotationSpeed();
     float speed_right = encoder_right->GetRotationSpeed();
 
-    current_distance += (speed_left + speed_right) / 2.0 * dt;
-    current_angle += (speed_right - speed_left) / 2.0 * dt;
+    current_distance += (speed_left + speed_right) / 2.0 * dt;  //in ticks
+    current_angle += (speed_right - speed_left) / 2.0 * dt;     //in ticks
 
     float requested_speed = pid_distance.Compute(target_distance, current_distance);
 

@@ -22,9 +22,11 @@ Motor motorLeft;
 const int MOTOR_RIGHT_NBR = 1;
 const int MOTOR_LEFT_NBR = 2;
 
-const int acceleration = 30;  // % per sec
+const int acceleration_right = 50;  // % per sec
+const int acceleration_left = 50;  // % per sec
 
-float max_speed = 100.0f;
+float max_speed_left = 19.5f;
+float max_speed_right = 19.5f;
 
 float threshold_speed_left = 3.0f;
 float threshold_speed_right = 3.0f;
@@ -36,8 +38,8 @@ void InitMotor(){
     Adafruit_MotorShield AFMS = Adafruit_MotorShield();
     AFMS.begin();
 
-    motorRight.Init(AFMS,MOTOR_RIGHT_NBR,acceleration,threshold_speed_right,min_speed_right, max_speed);
-    motorLeft.Init(AFMS ,MOTOR_LEFT_NBR ,acceleration,threshold_speed_left,min_speed_left, max_speed);
+    motorRight.Init(AFMS,MOTOR_RIGHT_NBR,acceleration_right,threshold_speed_right,min_speed_right, max_speed_right);
+    motorLeft.Init(AFMS ,MOTOR_LEFT_NBR ,acceleration_left,threshold_speed_left,min_speed_left, max_speed_left);
 
     motorRight.SetSpeed(0);
     motorLeft.SetSpeed(0);
@@ -112,13 +114,13 @@ void setup() {
 
 
     //define the path to follow
-    positionController.AddPoint({100,100});
-    positionController.AddPoint({200,100});
-    positionController.AddPoint({100,200});
+    //positionController.AddPoint({100,100});
+    //positionController.AddPoint({200,100});
+    //positionController.AddPoint({100,200});
 
-    delay(1000);
+    //delay(1000);
 
-    DebugPath();
+    //DebugPath();
 }
 
 void SerialCommande(){
@@ -150,6 +152,14 @@ void SerialCommande(){
                 break;
             case 'n':
                 positionController.Next();
+                break;
+            case 'b':
+                positionController.AddPoint({20,0});
+                positionController.AddPoint({20,90});
+                break;
+            case 'y':
+                positionController.AddPoint({20,});
+                positionController.AddPoint({20,-90});
                 break;
             default:
                 break;
@@ -247,14 +257,21 @@ void loop() {
     digitalWrite(TRIGGER_PIN, LOW);
     
     long measure = pulseIn(ECHO_PIN, HIGH, MEASURE_TIMEOUT);
+    if(measure == 0){
+        measure = 1000000;
+    }
+
+    //if timeout -> measure = 1000000 
     
     float distance_mm = measure / 2.0 * SOUND_SPEED;
     
-    Debug(distance_mm / 10);
+    //Debug(distance_mm / 10);
 
     SerialCommande();
 
     positionController.Update(distance_mm / 10);
+
+    //delay(5);
 
     //DebugUltrasound();
 

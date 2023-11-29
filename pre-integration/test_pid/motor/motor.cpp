@@ -96,7 +96,7 @@ void Motor::SetMotorSpeendAndDir(float speed){
         ada_motor->run(BACKWARD);
     }
     if(speed == 0){
-        ada_motor->run(RELEASE);
+        ada_motor->run(FORWARD);
     }
     if(speed > 0){
         ada_motor->run(FORWARD);

@@ -35,7 +35,7 @@ class PositionController
         
         Path GetLastPath();
 
-        bool manual_path_mode = true;
+        bool manual_path_mode = false;
         bool next_path = false;
 
     public:

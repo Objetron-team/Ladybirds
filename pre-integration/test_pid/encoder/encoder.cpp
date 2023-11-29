@@ -56,8 +56,8 @@ float Encoder::GetRotationSpeed(){
             rotation_speeds[i] = rotation_speeds[i-1];
         }
 
-        //add the new measurement to the array -> degree per second
-        rotation_speeds[0] = ((counter - counter_back) * motor->GetDirection()) * measurement_interval_ms * degrees_per_pulse * 10 / (current_time - last_wheel_speed_measurement);
+        //add the new measurement to the array -> tick per second
+        rotation_speeds[0] = ((counter - counter_back) * motor->GetDirection()) * 1000 / (current_time - last_wheel_speed_measurement);
         
         counter_back = counter;
         last_wheel_speed_measurement = current_time;

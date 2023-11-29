@@ -44,9 +44,9 @@ void PositionController::Update(float obstacle_distance){
 
     this->drive_controller->Update(obstacle_distance);
 
-    this->current_position.x = this->drive_controller->GetX();
-    this->current_position.y = this->drive_controller->GetY();
-    this->current_angle = this->drive_controller->GetCurrentAngle();
+    this->current_position.x = this->drive_controller->GetX() * 6.5 * PI / 40;
+    this->current_position.y = this->drive_controller->GetY() * 6.5 * PI / 40;
+    this->current_angle = (this->drive_controller->GetCurrentAngle() * PI / 40) * 180 / PI;
 
     if( (IsTaskCompleted() == 1 && manual_path_mode == false) || (next_path == true && manual_path_mode == true )  ){
 
@@ -64,11 +64,21 @@ void PositionController::Update(float obstacle_distance){
             float angle = target_angle;// - current_angle;
 
             if(Disance(previous_task.point,current_task.point) != 0){
+
+                //convert the distance (in cm) to a nbr of ticks
+                distance = distance * 40 / (6.5 * PI);
+
                 this->drive_controller->SetTargetDistance(distance);
             }
 
             if(previous_task.angle != current_task.angle){
-                this->drive_controller->SetTargetAngle(angle);
+
+                float angle_rad = angle * PI / 180;
+
+                float arc_length = angle_rad * 40 / PI;
+
+                this->drive_controller->SetTargetAngle(arc_length);
+
             }
         }
     }
@@ -96,14 +106,14 @@ int PositionController::IsTaskCompleted(){
 
     //Check if the position is reached
     float distance = Disance(current_task.point,current_position);
-    if(distance > 5){
+    if(distance > 7){
         return -1;
     }
 
     //Check if the angle is reached
     float angle = current_task.angle - current_angle;
     angle = fmod(angle,360);
-    if(angle > 5){
+    if(angle > 7){
         return -2;
     }
 
@@ -132,7 +142,9 @@ void PositionController::AddPoint(Point point){
     
     //Calculate the angle to the point from the last point
     Path last_path = GetLastPath();
-    float angle = atan2(point.y - last_path.point.y,point.x - last_path.point.x) * 180 / PI;
+    float angle = atan2(point.y - last_path.point.y,point.x - last_path.point.x) * 180 / PI;    //degree
+
+    //angle /= 7;
 
     //add two path, one for the angle and one for the distance
     AddPath(last_path.point,angle);
