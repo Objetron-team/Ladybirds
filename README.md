@@ -1,0 +1,1 @@
+Link to 3d model: https://a360.co/3ueuUNq
