@@ -3,8 +3,8 @@
  */
 
 /* Constantes pour les broches */
-const byte TRIGGER_PIN = 4; // Broche TRIGGER
-const byte ECHO_PIN = 5;   // Broche ECHO
+const byte TRIGGER_PIN = 9; // Broche TRIGGER
+const byte ECHO_PIN = 8;   // Broche ECHO
  
 /* Constantes pour le timeout */
 const unsigned long MEASURE_TIMEOUT = 25000UL; // 25ms = ~8m à 340m/s
@@ -16,7 +16,7 @@ const float SOUND_SPEED = 340.0 / 1000;
 void setup() {
    
   /* Initialise le port série */
-  Serial.begin(9600);
+  Serial.begin(38400);
    
   /* Initialise les broches */
   pinMode(TRIGGER_PIN, OUTPUT);
@@ -38,15 +38,19 @@ void loop() {
   /* 3. Calcul la distance à partir du temps mesuré */
   float distance_mm = measure / 2.0 * SOUND_SPEED;
    
+  Serial.print(F("Base:"));
+  Serial.print(0);
+  Serial.print(',');
+
+  Serial.print(F("Max:"));
+  Serial.print(3000);
+  Serial.print(',');
+
+
   /* Affiche les résultats en mm, cm et m */
-  Serial.print(F("Distance: "));
-  Serial.print(distance_mm);
-  Serial.print(F("mm ("));
-  Serial.print(distance_mm / 10.0, 2);
-  Serial.print(F("cm, "));
-  Serial.print(distance_mm / 1000.0, 2);
-  Serial.println(F("m)"));
-   
+  Serial.print(F("Distance:"));
+  Serial.println(distance_mm);
+
    /* Vérifie si la distance est supérieure à 10 cm */
   if (distance_mm < 1) {
     Serial.println(F("Arrêt du programme"));
@@ -55,5 +59,5 @@ void loop() {
     }
   }
   /* Délai d'attente pour éviter d'afficher trop de résultats à la seconde */
-  delay(500);
+  //delay(500);
 }
